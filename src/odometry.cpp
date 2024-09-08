@@ -32,6 +32,12 @@ double Odometry::getHeadingToTarget(double targetX, double targetY, double curHe
     return angle - curHeading;
 }
 
+double Odometry::getDistanceToTarget(double targetX, double targetY) {
+    double deltaX = targetX - currentX;
+    double deltaY = targetY - currentY;
+    return sqrt(pow(deltaX, 2) + pow(deltaY, 2));
+}
+
 double Odometry::getX() {
     return currentX;
 }

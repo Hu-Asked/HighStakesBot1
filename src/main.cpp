@@ -7,23 +7,28 @@ ez::Drive chassis (
 
   // Right Chassis Ports (negative port will reverse it!)
   //   the first port is used as the sensor
-  ,{4,7,6}
+  ,{4,5,6}
 
   // IMU Port
-  ,11
+  ,14
 
-  ,4.0
+  ,3.25
 
   // Cartridge RPM
   ,600
 
-  ,1.4
+  ,0.75
 );
 
-// pros::Motor intake();
 
+// Odometry odometry;
+pros::Motor intake1(9, pros::E_MOTOR_GEAR_BLUE, true, pros::E_MOTOR_ENCODER_DEGREES);
+pros::Motor intake2(10, pros::E_MOTOR_GEAR_BLUE, false, pros::E_MOTOR_ENCODER_DEGREES);
 
-
+// pros::ADIDigitalOut piston1('A');
+// pros::ADIDigitalOut piston2('B');
+// pros::ADIDigitalOut piston3('C');
+// pros::ADIDigitalOut piston4('D');
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -50,9 +55,9 @@ void initialize() {
   });
 
   chassis.initialize();
-  chassis.pid_tuner_increment_p_set(0.5);
-  chassis.pid_tuner_increment_i_set(0.5);
-  chassis.pid_tuner_increment_d_set(0.5);
+  chassis.pid_tuner_increment_p_set(0.1);
+  chassis.pid_tuner_increment_i_set(0.1);
+  chassis.pid_tuner_increment_d_set(0.1);
   chassis.pid_tuner_increment_start_i_set(0.1);
   ez::as::initialize();
   master.rumble(".");
@@ -67,21 +72,6 @@ void autonomous() {
   ez::as::auton_selector.selected_auton_call();
 }
 
-void testMotors() {
-  for(auto motor : chassis.left_motors) {
-    motor.move(75);
-    pros::delay(2000);
-    motor.move(0);
-    pros::delay(500);
-  }
-  for(auto motor : chassis.right_motors) {
-    motor.move(75);
-    pros::delay(2000);
-    motor.move(0);
-    pros::delay(500);
-  }
-}
-
 void opcontrol() {
   chassis.drive_brake_set(MOTOR_BRAKE_COAST);
   
@@ -89,19 +79,29 @@ void opcontrol() {
     if (!pros::competition::is_connected()) {
       //  * use A and Y to increment / decrement the constants
       //  * use the arrow keys to navigate the constants
-      if (master.get_digital_new_press(DIGITAL_X)) 
+      if (master.get_digital_new_press(DIGITAL_UP)) 
         chassis.pid_tuner_toggle();
         
-      if (master.get_digital_new_press(DIGITAL_B)) 
+      if (master.get_digital_new_press(DIGITAL_RIGHT)) 
         autonomous();
+        pros::lcd::set_text(2, to_string(chassis.imu.get_heading()));
       
-      if(master.get_digital(DIGITAL_LEFT)) {
-        testMotors();
-      }
       chassis.pid_tuner_iterate();
     }
     chassis.opcontrol_arcade_standard(ez::SPLIT);
+    
+    if(master.get_digital(DIGITAL_L1)) {
+      activateIntake(115);
+    } else if(master.get_digital(DIGITAL_L2)) {
+      activateIntake(-115);
+    } else {
+      activateIntake(0);
+    }
 
+    // if(master.get_digital(DIGITAL_B)) toggleClamp();
+    // if(master.get_digital(DIGITAL_A)) toggleLift();
+    // if(master.get_digital(DIGITAL_Y)) toggleIntakeCount();
+    
     pros::delay(ez::util::DELAY_TIME);
   }
 }

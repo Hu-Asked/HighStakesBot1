@@ -6,24 +6,24 @@
 /////
 
 // These are out of 127
-const int DRIVE_SPEED = 110;  
+const int DRIVE_SPEED = 100;  
 const int TURN_SPEED = 90;
-const int SWING_SPEED = 90;
+const int SWING_SPEED = 50;
 
 ///
 // Constants
 ///
 void default_constants() {
-  chassis.pid_heading_constants_set(3, 0, 20);
-  chassis.pid_drive_constants_set(15, 0, 0, 2.0);
-  chassis.pid_turn_constants_set(3, 0, 20);
+  chassis.pid_heading_constants_set(6.4, 14.1, 43.6);
+  chassis.pid_drive_constants_set(15, 0, 0);
+  chassis.pid_turn_constants_set(6.4, 14.1, 43.6);
   chassis.pid_swing_constants_set(5, 0, 30);
 
   chassis.pid_turn_exit_condition_set(200_ms, 2_deg, 500_ms, 7_deg, 750_ms, 750_ms);
   chassis.pid_swing_exit_condition_set(200_ms, 2_deg, 500_ms, 7_deg, 750_ms, 750_ms);
   chassis.pid_drive_exit_condition_set(200_ms, 1_in, 500_ms, 3_in, 750_ms, 750_ms);
 
-  chassis.slew_drive_constants_set(7_in, 80);
+  chassis.slew_drive_constants_set(7_in, 50);
 }
 
 void setMobileGoalPID() { // Set the PID constants for when carrying the mobile goal
@@ -108,9 +108,9 @@ void drive_example() {
   // The second parameter is max speed the robot will drive at
   // The third parameter is a boolean (true or false) for enabling/disabling a slew at the start of drive motions
   // for slew, only enable it when the drive distance is greater then the slew distance + a few inche
-  chassis.pid_drive_set(24_in, DRIVE_SPEED, true);
+  drive(40, DRIVE_SPEED, true, true);
+  chassis.pid_turn_set(90_deg, TURN_SPEED);
   chassis.pid_wait();
-  pros::lcd::set_text(1, to_string(chassis.drive_sensor_left()));
 }
 
 
@@ -118,7 +118,7 @@ void turn_example() {
   // The first parameter is target degrees
   // The second parameter is max speed the robot will drive at
 
-  chassis.pid_turn_relative_set(90_deg, TURN_SPEED);
+  chassis.pid_turn_set(90_deg, TURN_SPEED);
   chassis.pid_wait();
   pros::lcd::set_text(1, to_string(chassis.imu.get_heading()));
 }
