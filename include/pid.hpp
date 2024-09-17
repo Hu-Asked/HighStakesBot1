@@ -9,8 +9,6 @@ class PIDController {
         PIDController(double p, double i, double d);
         double calculateError(double curPosition, double goal);
         bool stop = false;
-
-    private:
         double kP;
         double kI;
         double kD;
@@ -19,6 +17,6 @@ class PIDController {
         double Integral;
         double Derivative;
         double prevError;
-        double timer;
+        double timer = 0;
 };
 #endif // PID_H

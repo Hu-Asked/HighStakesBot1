@@ -1,168 +1,186 @@
 #include "main.h"
 
-/////
-// For installation, upgrading, documentations and tutorials, check out our website!
-// https://ez-robotics.github.io/EZ-Template/
-/////
-
 // These are out of 127
-const int DRIVE_SPEED = 100;  
+const int DRIVE_SPEED = 80;  
 const int TURN_SPEED = 90;
 const int SWING_SPEED = 50;
 
-///
-// Constants
-///
 void default_constants() {
-  chassis.pid_heading_constants_set(6.4, 14.1, 43.6);
-  chassis.pid_drive_constants_set(15, 0, 0);
-  chassis.pid_turn_constants_set(6.4, 14.1, 43.6);
-  chassis.pid_swing_constants_set(5, 0, 30);
+  // chassis.pid_heading_constants_set(6.4, 14.1, 43.6);
+  // chassis.pid_drive_constants_set(15, 0, 0);
+  // chassis.pid_turn_constants_set(6.4, 14.1, 43.6);
+  // chassis.pid_swing_constants_set(5, 0, 30);
 
-  chassis.pid_turn_exit_condition_set(200_ms, 2_deg, 500_ms, 7_deg, 750_ms, 750_ms);
-  chassis.pid_swing_exit_condition_set(200_ms, 2_deg, 500_ms, 7_deg, 750_ms, 750_ms);
-  chassis.pid_drive_exit_condition_set(200_ms, 1_in, 500_ms, 3_in, 750_ms, 750_ms);
+  // chassis.pid_turn_exit_condition_set(200_ms, 2_deg, 500_ms, 7_deg, 750_ms, 750_ms);
+  // chassis.pid_swing_exit_condition_set(200_ms, 2_deg, 500_ms, 7_deg, 750_ms, 750_ms);
+  // chassis.pid_drive_exit_condition_set(200_ms, 1_in, 500_ms, 3_in, 750_ms, 750_ms);
 
-  chassis.slew_drive_constants_set(7_in, 50);
-}
-
-void setMobileGoalPID() { // Set the PID constants for when carrying the mobile goal
-  chassis.pid_drive_constants_set(10, 0, 100);
-  chassis.pid_turn_constants_set(3, 0, 20);
-  chassis.pid_heading_constants_set(3, 0, 20);
-  chassis.pid_swing_constants_set(3, 3, 3);
+  // chassis.slew_drive_constants_set(7_in, 50);
 }
 
 void RedLeft() {
-  // Add your autonomous code here
-  chassis.pid_drive_set(20_in, DRIVE_SPEED, false, true);
-  chassis.pid_wait();
-  chassis.pid_turn_relative_set(90_deg, TURN_SPEED);
-  chassis.pid_wait();
+  //Robot starts in reverse; rush mogo
+  drive(-35, 40, true); 
+  toggleClamp();
 
-  chassis.pid_drive_set(20_in, DRIVE_SPEED, false, true);
-  chassis.pid_wait();
-  chassis.pid_turn_relative_set(180_deg, TURN_SPEED);
-  chassis.pid_wait();
+  //activate intake to score preload
+  activateIntake(-110);
 
-  chassis.pid_drive_set(20_in, DRIVE_SPEED, false, true);
-  chassis.pid_wait();
-  chassis.pid_turn_relative_set(90_deg, TURN_SPEED);
-  chassis.pid_wait();
+  turnAbsolute(90, TURN_SPEED);
+  drive(17, DRIVE_SPEED, true);
+  turnAbsolute(170, TURN_SPEED);
+  drive(13, 50, true);
+  turnAbsolute(130, TURN_SPEED);
+  drive(4.5, DRIVE_SPEED, true);
+  pros::delay(40);
 
-  chassis.pid_drive_set(20_in, DRIVE_SPEED, false, true);
-  chassis.pid_wait();
-  chassis.pid_turn_relative_set(90_deg, TURN_SPEED);
-  chassis.pid_wait();
-
+  drive(-20, DRIVE_SPEED, true);
+  turnAbsolute(250, TURN_SPEED);
+  drive(20, DRIVE_SPEED, false);
 }
 
 void RedRight() {
-  chassis.pid_swing_relative_set(LEFT_SWING, 90_deg, SWING_SPEED);
-  chassis.pid_wait();
+  drive(-16, 110, true);
+  turnAbsolute(60, TURN_SPEED);
+  drive(-32, 110, true);
+  turnAbsolute(355, TURN_SPEED);
+  drive(-20, DRIVE_SPEED, true);
+  toggleClamp();
+  drive(20, DRIVE_SPEED, true);
+} 
 
-  chassis.pid_swing_relative_set(LEFT_SWING, 90_deg, SWING_SPEED);
-  chassis.pid_wait();
-  
-  chassis.pid_swing_relative_set(LEFT_SWING, 90_deg, SWING_SPEED);
-  chassis.pid_wait();
-  
-  chassis.pid_swing_relative_set(LEFT_SWING, 90_deg, SWING_SPEED);
-  chassis.pid_wait();
+void RedRight2() {
+  drive(30, DRIVE_SPEED, true);
+  turn(45, TURN_SPEED);
+  drive(-20, DRIVE_SPEED, true);
+  activateIntake(-110);
+  turnAbsolute(90, TURN_SPEED);
+  pros::delay(300);
+  activateIntake(0);
+  drive(12, DRIVE_SPEED, true);
+  turnAbsolute(315, TURN_SPEED);
+  drive(-40, 60, true);
+  toggleClamp();
+  turnAbsolute(180, TURN_SPEED);
+  drive(30, DRIVE_SPEED, true);
 }
 
 void BlueLeft() {
-  chassis.pid_drive_set(20_in, DRIVE_SPEED, false, true);
-  chassis.pid_wait();
-  chassis.pid_turn_set(180_deg, TURN_SPEED);
-  chassis.pid_wait();
+  //Robot starts in reverse; rush mogo
+  drive(-36, 40, true); 
+  toggleClamp();
 
-  chassis.pid_drive_set(20_in, DRIVE_SPEED, false, true);
-  chassis.pid_wait();
+  //activate intake to score preload
+  activateIntake(-110);
 
-  chassis.pid_drive_set(-20_in, DRIVE_SPEED, false, true);
-  chassis.pid_wait();
-  chassis.pid_turn_set(0_deg, TURN_SPEED);
-  chassis.pid_wait();
+  turnAbsolute(270, TURN_SPEED);
+  drive(16, DRIVE_SPEED, true);
+  turnAbsolute(190, TURN_SPEED);
+  drive(11, 50, true);
+  turnAbsolute(220, TURN_SPEED);
+  drive(4, DRIVE_SPEED, true);
+  pros::delay(40);
 
-  chassis.pid_drive_set(-20_in, DRIVE_SPEED, false, true);
-  chassis.pid_wait();
-
+  drive(-20, DRIVE_SPEED, true);
+  turnAbsolute(90, TURN_SPEED);
+  drive(25, DRIVE_SPEED, true);
 }
 
 void BlueRight() {
-  chassis.pid_swing_set(LEFT_SWING, 90_deg, SWING_SPEED);
-  chassis.pid_wait();
-  chassis.pid_swing_set(RIGHT_SWING, 0_deg, SWING_SPEED);
-  chassis.pid_wait();
-  chassis.pid_swing_set(RIGHT_SWING, 90_deg, SWING_SPEED);
-  chassis.pid_wait();
-  chassis.pid_swing_set(LEFT_SWING, 0_deg, SWING_SPEED);
+  //start in reverse; rush mogo
+  drive(-16, 110, true);
+  turnAbsolute(300, TURN_SPEED);
+  drive(-32, 110, true);
+  turnAbsolute(5, TURN_SPEED);
+  drive(-20, DRIVE_SPEED, true);
+  toggleClamp();
+  drive(20, DRIVE_SPEED, true);
+}
+
+void BlueRight2() {
+  //go for alliance stake first
+  drive(30, DRIVE_SPEED, true);
+  turn(315, TURN_SPEED);
+  drive(-20, DRIVE_SPEED, true);
+  activateIntake(-110);
+  turnAbsolute(270, TURN_SPEED);
+  pros::delay(300);
+  activateIntake(0);
+  drive(12, DRIVE_SPEED, true);
+  turnAbsolute(45, TURN_SPEED);
+  drive(-40, 60, true);
+  toggleClamp();
+  turnAbsolute(180, TURN_SPEED);
+  drive(30, DRIVE_SPEED, true);
 }
 
 void AutonomousSkills() {
-  // Add your autonomous code here
+  //robot starts in reverse; rush mogo
+  drive(-10, DRIVE_SPEED, true);
+  toggleClamp();
+  turn(180, TURN_SPEED);
+  activateIntake(-90);
+  drive(5, DRIVE_SPEED, true);
+
+  turn(270, TURN_SPEED);
+  drive(5, DRIVE_SPEED, true);
+
+  turn(270, TURN_SPEED);
+  drive(10, DRIVE_SPEED, true);
+
+  turn(135, TURN_SPEED);
+  drive(5, DRIVE_SPEED, true);
+
+
+  //align with wall
+  turn(270, TURN_SPEED);
+  drive(5, DRIVE_SPEED, true);
+
+  activateIntake(0);
+  turn(270, TURN_SPEED);
+  drive(-5, DRIVE_SPEED, true);
+  toggleClamp();
+
+  //aim towards next mogo, then drive partway, then turn 180 to line up with clamp
+  turn(45, TURN_SPEED);
+  drive(5, DRIVE_SPEED, true);
+  turn(180, TURN_SPEED);
+  drive(-10, DRIVE_SPEED, true);
+  toggleClamp();
+
+  turn(90, TURN_SPEED);
+  drive(5, DRIVE_SPEED, true);
+  turn(90, TURN_SPEED);
+  drive(5, DRIVE_SPEED, true);
+
+  turn(35, TURN_SPEED);
+  drive(5, DRIVE_SPEED, true);
+  turn(35, TURN_SPEED);
+  drive(5, DRIVE_SPEED, true);
+  turn(90, TURN_SPEED);
+  drive(5, DRIVE_SPEED, true);
+  turn(270, TURN_SPEED);
+  drive(5, DRIVE_SPEED, true);
+  
+  //align with wall, reverse, then drop off mogo
+
+  //Step 5-9 (put rings on neutral stakes)
+
+  //Step 10, get center ring and mogo
+  //Get 3 more rings, then drop off in corner
+  //3 rings on neutral stake
+
+  //grab mogo and put in
+
+  toggleClamp();  
+
+
 }
 void drive_example() {
-  // The first parameter is target inches
-  // The second parameter is max speed the robot will drive at
-  // The third parameter is a boolean (true or false) for enabling/disabling a slew at the start of drive motions
-  // for slew, only enable it when the drive distance is greater then the slew distance + a few inche
-  drive(40, DRIVE_SPEED, true, true);
-  chassis.pid_turn_set(90_deg, TURN_SPEED);
-  chassis.pid_wait();
+  drive(40, DRIVE_SPEED, true);
 }
 
 
 void turn_example() {
-  // The first parameter is target degrees
-  // The second parameter is max speed the robot will drive at
-
-  chassis.pid_turn_set(90_deg, TURN_SPEED);
-  chassis.pid_wait();
-  pros::lcd::set_text(1, to_string(chassis.imu.get_heading()));
-}
-
-void swing_example() {
-  chassis.pid_swing_set(LEFT_SWING, 90_deg, SWING_SPEED);
-  chassis.pid_wait();
-  chassis.pid_swing_set(LEFT_SWING, 0_deg, SWING_SPEED);
-  chassis.pid_wait();
-}
-///
-// Interference example
-///
-void tug(int attempts) {
-  for (int i = 0; i < attempts - 1; i++) {
-    // Attempt to drive backwards
-    printf("i - %i", i);
-    chassis.pid_drive_set(-12_in, 127);
-    chassis.pid_wait();
-
-    // If failsafed...
-    if (chassis.interfered) {
-      chassis.drive_sensor_reset();
-      chassis.pid_drive_set(-2_in, 20);
-      pros::delay(1000);
-    }
-    // If robot successfully drove back, return
-    else {
-      return;
-    }
-  }
-}
-
-// If there is no interference, robot will drive forward and turn 90 degrees.
-// If interfered, robot will drive forward and then attempt to drive backwards.
-void interfered_example() {
-  chassis.pid_drive_set(24_in, DRIVE_SPEED, true);
-  chassis.pid_wait();
-
-  if (chassis.interfered) {
-    tug(3);
-    return;
-  }
-
-  chassis.pid_turn_set(90_deg, TURN_SPEED);
-  chassis.pid_wait();
+  turn(90, TURN_SPEED);
 }

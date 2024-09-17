@@ -1,24 +1,24 @@
 #include "main.h"
 
-ez::Drive chassis (
-  // Left Chassis Ports (negative port will reverse it!)
-  //   the first port is used as the sensor
-  {-1,-2,-3}
+// ez::Drive chassis (
+//   // Left Chassis Ports (negative port will reverse it!)
+//   //   the first port is used as the sensor
+//   {-1,-2,-3}
 
-  // Right Chassis Ports (negative port will reverse it!)
-  //   the first port is used as the sensor
-  ,{4,5,6}
+//   // Right Chassis Ports (negative port will reverse it!)
+//   //   the first port is used as the sensor
+//   ,{4,5,6}
 
-  // IMU Port
-  ,14
+//   // IMU Port
+//   ,14
 
-  ,3.25
+//   ,3.25
 
-  // Cartridge RPM
-  ,600
+//   // Cartridge RPM
+//   ,600
 
-  ,0.75
-);
+//   ,0.75
+// );
 
 
 // Odometry odometry;
@@ -30,35 +30,26 @@ pros::Motor intake2(10, pros::E_MOTOR_GEAR_BLUE, false, pros::E_MOTOR_ENCODER_DE
 // pros::ADIDigitalOut piston3('C');
 // pros::ADIDigitalOut piston4('D');
 
-/**
- * Runs initialization code. This occurs as soon as the program is started.
- *
- * All other competition modes are blocked by initialize; it is recommended
- * to keep execution time for this mode under a few seconds.
- */
 void initialize() {
   pros::delay(500);
-  chassis.opcontrol_curve_buttons_toggle(true); 
-  chassis.opcontrol_drive_activebrake_set(2); 
-  chassis.opcontrol_curve_default_set(5, 5); 
+  LeftDrive.set_brake_modes(MOTOR_BRAKE_HOLD);
+  RightDrive.set_brake_modes(MOTOR_BRAKE_HOLD);
+  imu.reset();
+  while(imu.is_calibrating()) {
+    pros::delay(10);
+  }
   default_constants();
   ez::as::auton_selector.autons_add({
     Auton("Red Left", RedLeft),
-    Auton("Red Right", RedRight),
+    Auton("Red Right \nMOGO rush", RedRight),
+    Auton("Red Right 2 \nTwo rings two stakes", RedRight2),
     Auton("Blue Left", BlueLeft),
-    Auton("Blue Right", BlueRight),
+    Auton("Blue Right \nMOGO rush", BlueRight),
+    Auton("Blue Right 2 \nTwo rings two stakes", BlueRight2),
     Auton("Skills", AutonomousSkills),
-    Auton("Drive Example\n\nRobot drives forward 20 inches.", drive_example),
-    Auton("Turn Example\n\nRobot turns 90 degrees.", turn_example),
-    Auton("Swing Example\n\nRobot swings 90 degrees.", swing_example),
-    Auton("Interference\n\nAfter driving forward, robot performs differently if interfered or not.", interfered_example),
+    Auton("Drive Example\n\nRobot drives forward", drive_example),
+    Auton("Turn Example\n\nRobot turns 90 degrees", turn_example),
   });
-
-  chassis.initialize();
-  chassis.pid_tuner_increment_p_set(0.1);
-  chassis.pid_tuner_increment_i_set(0.1);
-  chassis.pid_tuner_increment_d_set(0.1);
-  chassis.pid_tuner_increment_start_i_set(0.1);
   ez::as::initialize();
   master.rumble(".");
 }
@@ -72,31 +63,49 @@ void autonomous() {
   ez::as::auton_selector.selected_auton_call();
 }
 
+int turningCurve = 10;
+bool isTurningCurve = false;
+int forwardCurve = 20;
+bool isForwardCurve = false;
+
+double curveJoystick(bool isCurve, int input, double t){
+  	int val = 0;
+  	if(isCurve) {
+    	val = (std::exp(-t/10)+std::exp((std::abs(input)-100)/10)*(1-std::exp(-t/10))) * input;
+  	} else {
+    	val = std::exp(((std::abs(input)-100)*t)/1000) * input;
+  	}
+  	return val;
+}
+
 void opcontrol() {
-  chassis.drive_brake_set(MOTOR_BRAKE_COAST);
   
   while (true) {
+    master.print(0, 0, "Heading: %f", imu.get_heading());
     if (!pros::competition::is_connected()) {
-      //  * use A and Y to increment / decrement the constants
-      //  * use the arrow keys to navigate the constants
-      if (master.get_digital_new_press(DIGITAL_UP)) 
-        chassis.pid_tuner_toggle();
-        
       if (master.get_digital_new_press(DIGITAL_RIGHT)) 
-        autonomous();
-        pros::lcd::set_text(2, to_string(chassis.imu.get_heading()));
-      
-      chassis.pid_tuner_iterate();
+        autonomous(); 
     }
-    chassis.opcontrol_arcade_standard(ez::SPLIT);
-    
+
+    int LeftY = std::clamp(curveJoystick(isForwardCurve, master.get_analog(ANALOG_LEFT_Y), forwardCurve), -100.0, 100.0);
+		int RightX = std::clamp(curveJoystick(isTurningCurve, master.get_analog(ANALOG_RIGHT_X), turningCurve), -100.0, 100.0);	
+		int leftPower = LeftY + RightX;
+		int rightPower = LeftY - RightX;
+		pros::delay(10);
+		LeftDrive.move(leftPower);
+		RightDrive.move(rightPower);
+
     if(master.get_digital(DIGITAL_L1)) {
-      activateIntake(115);
-    } else if(master.get_digital(DIGITAL_L2)) {
-      activateIntake(-115);
+      activateIntake(110);
+    } else if(master.get_digital(DIGITAL_R1)) {
+      activateIntake(-110);
     } else {
       activateIntake(0);
     }
+
+    if(master.get_digital_new_press(DIGITAL_A)) toggleClamp();
+    if(master.get_digital_new_press(DIGITAL_Y)) toggleLift();
+    if(master.get_digital_new_press(DIGITAL_X)) toggleIntakeCount();
 
     // if(master.get_digital(DIGITAL_B)) toggleClamp();
     // if(master.get_digital(DIGITAL_A)) toggleLift();

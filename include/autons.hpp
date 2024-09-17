@@ -13,8 +13,10 @@ extern Drive chassis;
 
 void RedLeft();
 void RedRight();
+void RedRight2();
 void BlueLeft();
 void BlueRight();
+void BlueRight2();
 void AutonomousSkills();
 
 void drive_example();
