@@ -1,7 +1,7 @@
 {
   "py/object": "pros.conductor.project.Project",
   "py/state": {
-    "project_name": "thebot",
+    "project_name": "BuchongBot24",
     "target": "v5",
     "templates": {
       "EZ-Template": {
@@ -333,7 +333,8 @@
       }
     },
     "upload_options": {
-      "slot": 1
+      "slot": 1,
+      "description": "Tyler's Suggestion"
     }
   }
 }

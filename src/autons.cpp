@@ -1,186 +1,179 @@
 #include "main.h"
 
 // These are out of 127
-const int DRIVE_SPEED = 80;  
+const int DRIVE_SPEED = 100;
 const int TURN_SPEED = 90;
-const int SWING_SPEED = 50;
 
 void default_constants() {
-  // chassis.pid_heading_constants_set(6.4, 14.1, 43.6);
-  // chassis.pid_drive_constants_set(15, 0, 0);
-  // chassis.pid_turn_constants_set(6.4, 14.1, 43.6);
-  // chassis.pid_swing_constants_set(5, 0, 30);
-
-  // chassis.pid_turn_exit_condition_set(200_ms, 2_deg, 500_ms, 7_deg, 750_ms, 750_ms);
-  // chassis.pid_swing_exit_condition_set(200_ms, 2_deg, 500_ms, 7_deg, 750_ms, 750_ms);
-  // chassis.pid_drive_exit_condition_set(200_ms, 1_in, 500_ms, 3_in, 750_ms, 750_ms);
-
-  // chassis.slew_drive_constants_set(7_in, 50);
+    pidD.setExitCondition(1, true, 200, 5000);
 }
 
+// Names are according to the field set up on the manual, watch out for mistakes in field orientation
 void RedLeft() {
-  //Robot starts in reverse; rush mogo
-  drive(-35, 40, true); 
-  toggleClamp();
+    // align 6 holes with foam tile
+    // Robot starts in reverse; rush mogo
+    drive(-35, 40, true);
+    toggleClamp();
 
-  //activate intake to score preload
-  activateIntake(-110);
+    // activate intake to score preload
+    activateIntake(-110);
 
-  turnAbsolute(90, TURN_SPEED);
-  drive(17, DRIVE_SPEED, true);
-  turnAbsolute(170, TURN_SPEED);
-  drive(13, 50, true);
-  turnAbsolute(130, TURN_SPEED);
-  drive(4.5, DRIVE_SPEED, true);
-  pros::delay(40);
+    turnAbsolute(90, TURN_SPEED);
+    drive(17, DRIVE_SPEED, true);
+    turnAbsolute(170, TURN_SPEED);
+    drive(13, 50, true);
+    turnAbsolute(135, TURN_SPEED);
+    drive(4, DRIVE_SPEED, true);
+    pros::delay(40);
 
-  drive(-20, DRIVE_SPEED, true);
-  turnAbsolute(250, TURN_SPEED);
-  drive(20, DRIVE_SPEED, false);
+    drive(-20, DRIVE_SPEED, true);
+    turnAbsolute(250, TURN_SPEED);
+    drive(26, DRIVE_SPEED, true);
 }
 
 void RedRight() {
-  drive(-16, 110, true);
-  turnAbsolute(60, TURN_SPEED);
-  drive(-32, 110, true);
-  turnAbsolute(355, TURN_SPEED);
-  drive(-20, DRIVE_SPEED, true);
-  toggleClamp();
-  drive(20, DRIVE_SPEED, true);
-} 
+    // drive(-35.5, 40, true);
+    // toggleClamp();
+    // activateIntake(-110);
+    // turnAbsolute(270, TURN_SPEED);
+    // drive(16, DRIVE_SPEED, true);
+    // turnAbsolute(110, TURN_SPEED);
+    // toggleClamp();
+    // drive(33, DRIVE_SPEED, true);
+
+    drive(-52, DRIVE_SPEED, true);
+    toggleClamp();
+    activateIntake(-110);
+    drive(15, DRIVE_SPEED, true);
+}
 
 void RedRight2() {
-  drive(30, DRIVE_SPEED, true);
-  turn(45, TURN_SPEED);
-  drive(-20, DRIVE_SPEED, true);
-  activateIntake(-110);
-  turnAbsolute(90, TURN_SPEED);
-  pros::delay(300);
-  activateIntake(0);
-  drive(12, DRIVE_SPEED, true);
-  turnAbsolute(315, TURN_SPEED);
-  drive(-40, 60, true);
-  toggleClamp();
-  turnAbsolute(180, TURN_SPEED);
-  drive(30, DRIVE_SPEED, true);
+    // align preload with intake top c-channel
+    // align standoff with tape: standoff on inside of tape
+    drive(20, DRIVE_SPEED, true);
+    turnAbsolute(93, TURN_SPEED);
+    activateIntake(-110);
+    drive2(-10, 120, true);
+    LeftDrive.move(-127);
+    RightDrive.move(-127);
+    pros::delay(200);
+    LeftDrive.move(0);
+    RightDrive.move(0);
+    // drive(20, 78, true);
+    // turnAbsolute(320, TURN_SPEED);
+    // drive(-37, DRIVE_SPEED, true);
+    // toggleClamp();
+    // turnAbsolute(195, TURN_SPEED);
+    // drive(20, DRIVE_SPEED, true);
+    // drive(-32, DRIVE_SPEED, true);
+    drive(15, 80, true);
+    turnAbsolute(180, TURN_SPEED);
+    drive(25, DRIVE_SPEED, true);
+    turnAbsolute(270, TURN_SPEED);
+    drive(-25, 50, true);
+    toggleClamp();
+    turnAbsolute(190, TURN_SPEED);
+    drive(30, DRIVE_SPEED, true);
 }
 
 void BlueLeft() {
-  //Robot starts in reverse; rush mogo
-  drive(-36, 40, true); 
-  toggleClamp();
+    // align 6 holes with foam tile
+    // Robot starts in reverse; rush mogo
+    drive(-35.5, 40, true);
+    toggleClamp();
 
-  //activate intake to score preload
-  activateIntake(-110);
+    // activate intake to score preload
+    activateIntake(-110);
 
-  turnAbsolute(270, TURN_SPEED);
-  drive(16, DRIVE_SPEED, true);
-  turnAbsolute(190, TURN_SPEED);
-  drive(11, 50, true);
-  turnAbsolute(220, TURN_SPEED);
-  drive(4, DRIVE_SPEED, true);
-  pros::delay(40);
+    turnAbsolute(270, TURN_SPEED);
+    drive(16, DRIVE_SPEED, true);
+    turnAbsolute(190, TURN_SPEED);
+    drive(11, 50, true);
+    turnAbsolute(220, TURN_SPEED);
+    drive(3.5, DRIVE_SPEED, true);
+    pros::delay(40);
 
-  drive(-20, DRIVE_SPEED, true);
-  turnAbsolute(90, TURN_SPEED);
-  drive(25, DRIVE_SPEED, true);
+    drive(-20, DRIVE_SPEED, true);
+    turnAbsolute(90, TURN_SPEED);
+    drive(26, DRIVE_SPEED, true);
 }
 
 void BlueRight() {
-  //start in reverse; rush mogo
-  drive(-16, 110, true);
-  turnAbsolute(300, TURN_SPEED);
-  drive(-32, 110, true);
-  turnAbsolute(5, TURN_SPEED);
-  drive(-20, DRIVE_SPEED, true);
-  toggleClamp();
-  drive(20, DRIVE_SPEED, true);
+    // start in reverse; rush mogo
+    drive(-35.5, 40, true);
+    toggleClamp();
+    activateIntake(-110);
+    turnAbsolute(90, TURN_SPEED);
+    drive(16, DRIVE_SPEED, true);
+    turnAbsolute(210, TURN_SPEED);
+    drive(-30, DRIVE_SPEED, true);
 }
 
 void BlueRight2() {
-  //go for alliance stake first
-  drive(30, DRIVE_SPEED, true);
-  turn(315, TURN_SPEED);
-  drive(-20, DRIVE_SPEED, true);
-  activateIntake(-110);
-  turnAbsolute(270, TURN_SPEED);
-  pros::delay(300);
-  activateIntake(0);
-  drive(12, DRIVE_SPEED, true);
-  turnAbsolute(45, TURN_SPEED);
-  drive(-40, 60, true);
-  toggleClamp();
-  turnAbsolute(180, TURN_SPEED);
-  drive(30, DRIVE_SPEED, true);
+    // align preload with intake top c-channel
+    // align standoff with tape: standoff on inside of tape
+    drive(18, DRIVE_SPEED, true);
+    turnAbsolute(267, TURN_SPEED);
+    activateIntake(-110);
+    drive2(-7, DRIVE_SPEED, true);
+    drive(20, 78, true);
+    turnAbsolute(40, TURN_SPEED);
+    drive(-37, DRIVE_SPEED, true);
+    toggleClamp();
+    turnAbsolute(165, TURN_SPEED);
+    drive(20, DRIVE_SPEED, true);
+    drive(-32, DRIVE_SPEED, true);
 }
 
 void AutonomousSkills() {
-  //robot starts in reverse; rush mogo
-  drive(-10, DRIVE_SPEED, true);
-  toggleClamp();
-  turn(180, TURN_SPEED);
-  activateIntake(-90);
-  drive(5, DRIVE_SPEED, true);
+    // align preload with c-channel
 
-  turn(270, TURN_SPEED);
-  drive(5, DRIVE_SPEED, true);
+    activateIntake(-110);
+    drive2(-7.3, DRIVE_SPEED, true);
+    drive(18, DRIVE_SPEED, true);
 
-  turn(270, TURN_SPEED);
-  drive(10, DRIVE_SPEED, true);
+    turnAbsolute(90, TURN_SPEED);
+    drive(-24, 50, true);
+    toggleClamp();
+    turnAbsolute(1, TURN_SPEED);
+    drive(16, DRIVE_SPEED, true);
+    turnAbsolute(285, TURN_SPEED);
+    drive(28, DRIVE_SPEED, true);
+    turnAbsolute(180, TURN_SPEED);
+    drive(20, DRIVE_SPEED, true);
+    pros::delay(10);
+    drive(12, DRIVE_SPEED, true);
+    turnAbsolute(307, TURN_SPEED);
+    drive(11, DRIVE_SPEED, true);
+    turnAbsolute(40, TURN_SPEED);
+    drive(-12, 60, true);
+    toggleClamp();
 
-  turn(135, TURN_SPEED);
-  drive(5, DRIVE_SPEED, true);
+    drive(12, DRIVE_SPEED, true);
+    turnAbsolute(270, TURN_SPEED);
+    drive(-70, DRIVE_SPEED, true);
+    toggleClamp();
+    drive(-5, DRIVE_SPEED, true);
+    turnAbsolute(0, TURN_SPEED);
+    drive(15, DRIVE_SPEED, true);
+    turnAbsolute(80, TURN_SPEED);
+    drive(25, DRIVE_SPEED, true);
+    turnAbsolute(180, TURN_SPEED);
+    drive(20, DRIVE_SPEED, true);
+    drive(12, DRIVE_SPEED, true);
 
+    // Step 5-9 (put rings on neutral stakes)
 
-  //align with wall
-  turn(270, TURN_SPEED);
-  drive(5, DRIVE_SPEED, true);
+    // Step 10, get center ring and mogo
+    // Get 3 more rings, then drop off in corner
+    // 3 rings on neutral stake
 
-  activateIntake(0);
-  turn(270, TURN_SPEED);
-  drive(-5, DRIVE_SPEED, true);
-  toggleClamp();
-
-  //aim towards next mogo, then drive partway, then turn 180 to line up with clamp
-  turn(45, TURN_SPEED);
-  drive(5, DRIVE_SPEED, true);
-  turn(180, TURN_SPEED);
-  drive(-10, DRIVE_SPEED, true);
-  toggleClamp();
-
-  turn(90, TURN_SPEED);
-  drive(5, DRIVE_SPEED, true);
-  turn(90, TURN_SPEED);
-  drive(5, DRIVE_SPEED, true);
-
-  turn(35, TURN_SPEED);
-  drive(5, DRIVE_SPEED, true);
-  turn(35, TURN_SPEED);
-  drive(5, DRIVE_SPEED, true);
-  turn(90, TURN_SPEED);
-  drive(5, DRIVE_SPEED, true);
-  turn(270, TURN_SPEED);
-  drive(5, DRIVE_SPEED, true);
-  
-  //align with wall, reverse, then drop off mogo
-
-  //Step 5-9 (put rings on neutral stakes)
-
-  //Step 10, get center ring and mogo
-  //Get 3 more rings, then drop off in corner
-  //3 rings on neutral stake
-
-  //grab mogo and put in
-
-  toggleClamp();  
-
-
+    // grab mogo and put in
 }
 void drive_example() {
-  drive(40, DRIVE_SPEED, true);
+    drive(40, DRIVE_SPEED, true);
 }
 
-
 void turn_example() {
-  turn(90, TURN_SPEED);
+    turn(90, TURN_SPEED);
 }

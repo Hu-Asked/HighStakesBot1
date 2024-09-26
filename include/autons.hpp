@@ -5,7 +5,7 @@
 #ifndef AUTONS_HPP
 #define AUTONS_HPP
 
-extern const int DRIVE_SPEED;  
+extern const int DRIVE_SPEED;
 extern const int TURN_SPEED;
 extern const int SWING_SPEED;
 
@@ -26,4 +26,4 @@ void interfered_example();
 
 void default_constants();
 
-#endif // AUTONS_HPP
+#endif  // AUTONS_HPP

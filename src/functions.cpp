@@ -1,4 +1,5 @@
 #include "functions.hpp"
+
 #include "pid.hpp"
 
 PIDController pidH(0.023, 0.011, 0.144);
@@ -8,13 +9,12 @@ pros::Motor m1(1, MOTOR_GEAR_BLUE, true, pros::E_MOTOR_ENCODER_DEGREES);
 pros::Motor m2(2, MOTOR_GEAR_BLUE, true, pros::E_MOTOR_ENCODER_DEGREES);
 pros::Motor m3(3, MOTOR_GEAR_BLUE, true, pros::E_MOTOR_ENCODER_DEGREES);
 
-
 pros::Motor m4(4, MOTOR_GEAR_BLUE, false, pros::E_MOTOR_ENCODER_DEGREES);
 pros::Motor m5(5, MOTOR_GEAR_BLUE, false, pros::E_MOTOR_ENCODER_DEGREES);
 pros::Motor m6(6, MOTOR_GEAR_BLUE, false, pros::E_MOTOR_ENCODER_DEGREES);
 
-pros::Motor_Group LeftDrive({m1,m2,m3});
-pros::Motor_Group RightDrive({m4,m5,m6});
+pros::Motor_Group LeftDrive({m1, m2, m3});
+pros::Motor_Group RightDrive({m4, m5, m6});
 
 pros::IMU imu(14);
 
@@ -22,16 +22,29 @@ pros::ADIDigitalOut clampPiston('A');
 pros::ADIDigitalOut liftPiston('B');
 pros::ADIDigitalOut intakeSizePiston('C');
 
+double wheelDiameter = 3.25;
+double gearRatio = 36/48;
+
+double updateRelativeHeading(double relativeHeading, double initialImuHeading, double currentImuHeading) {
+    relativeHeading = currentImuHeading - initialImuHeading;
+    if (relativeHeading > 180) {
+        relativeHeading -= 360;
+    } else if (relativeHeading < -180) {
+        relativeHeading += 360;
+    }
+    return relativeHeading;
+}
+
 double forcedDecelerate(double remainDistance, double driveSpeed, int minSpeed, double startDistance, bool isReverse) {
-    if(isReverse) {
-		if(remainDistance >= 0) {
-			return minSpeed;
-		}
-	} else {
-		if (remainDistance <= 0) {
-			return minSpeed;
-		}
-	}
+    if (isReverse) {
+        if (remainDistance >= 0) {
+            return minSpeed;
+        }
+    } else {
+        if (remainDistance <= 0) {
+            return minSpeed;
+        }
+    }
     double decelerationSlope = (driveSpeed - minSpeed) / startDistance;
 
     double currentSpeed = driveSpeed - (decelerationSlope * (startDistance - abs(remainDistance)));
@@ -39,109 +52,90 @@ double forcedDecelerate(double remainDistance, double driveSpeed, int minSpeed, 
     if (currentSpeed < minSpeed) {
         currentSpeed = minSpeed;
     }
-    
-    return std::clamp(floor(currentSpeed), (double)minSpeed, (double) driveSpeed);
+
+    return std::clamp(floor(currentSpeed), (double)minSpeed, (double)driveSpeed);
 }
 
-double inchesToDegrees(int distanceToMove) { //Distance to move in inches
-	double degreesToMove = (distanceToMove / (3.25*M_PI)) * 360;
-	return degreesToMove * 48/36;
+double inchesToDegrees(int distanceToMove) {  // Distance to move in inches
+    double degreesToMove = (distanceToMove / (wheelDiameter * M_PI)) * 360;
+    return degreesToMove / gearRatio;
 }
-double degreesToInches(int distanceToMove) { //Distance to move in inches
-	return distanceToMove * 36/48 / 360 * (3.25*M_PI);
-}
-double calculateOptimalTurn(int degrees) {
-	double error = abs(pidH.calculateError(imu.get_heading(), degrees % 360));
-		if(imu.get_heading() < degrees) {
-			//Make Right Drive move by -error
-			if(abs(imu.get_heading() - degrees) < 180) {
-				return error;
-			} else {
-				return -error;
-			}
-		} else {
-			if(abs(imu.get_heading() - degrees) < 180) {
-				return -error;
-			} else {
-				return error;
-			}
-		}
+double degreesToInches(int distanceToMove) {  // Distance to move in degrees
+    return distanceToMove * gearRatio / 360 * (wheelDiameter * M_PI);
 }
 
 void drive(double target, double power, bool decelerateAtEnd) {
-	bool isDecelerating = false;
-	int curHeading = imu.get_heading();
+    bool isDecelerating = false;
+    double initialHeading = imu.get_heading();
+    double relativeHeading = 0;
     m1.tare_position();
-	double temp = power;
-	double LPower = power;
-	double RPower = power;
-	double time = 0;
-	double max = power + 27.0;
+    double temp = power;
+    double LPower;
+    double RPower;
+    double time = 0;
+    double max = power + 27.0;
     target = inchesToDegrees(target);
-	while(true) {
-        if(decelerateAtEnd) {
-           power = forcedDecelerate(degreesToInches(target) - degreesToInches(m1.get_position()), temp, 15, 6.5, target < 0);
+    while (true) {
+        if (decelerateAtEnd) {
+            power = forcedDecelerate(degreesToInches(target) - degreesToInches(m1.get_position()), temp, 15, 6.5, target < 0);
         }
 
-		LPower = power;
-		RPower = power;
-		double turnError;		
-		turnError = calculateOptimalTurn(curHeading);
-		double error = pidD.calculateError(m1.get_position(), target);
-        if(pidD.stop) {
+        LPower = power;
+        RPower = power;
+        double turnError = pidH.calculateError(relativeHeading, 0);
+        double error = pidD.calculateError(m1.get_position(), target);
+        if (pidD.stop) {
             pidD.stop = false;
             pidD.timer = 0;
+            pidD.maxTimeTimer = 0;
             break;
         }
-		LPower = LPower * error + std::clamp(LPower * turnError, -27.0, 27.0);
-		RPower = RPower * error + std::clamp(RPower * -turnError, -27.0, 27.0);
-		LeftDrive.move(std::clamp(LPower, -max, max));
-		RightDrive.move(std::clamp(RPower, -max, max));
-        
-		pros::delay(10);
-	}
+        LPower = LPower * error + std::clamp(LPower * turnError, -27.0, 27.0);
+        RPower = RPower * error + std::clamp(RPower * -turnError, -27.0, 27.0);
+        LeftDrive.move(std::clamp(LPower, -max, max));
+        RightDrive.move(std::clamp(RPower, -max, max));
+        relativeHeading = updateRelativeHeading(relativeHeading, initialHeading, imu.get_heading());
+        pros::delay(10);
+    }
     pros::lcd::print(6, "Target: %f", target);
     pros::lcd::print(5, "Position: %f", m1.get_position());
-	LeftDrive.move(0);
-	RightDrive.move(0);
+    LeftDrive.move(0);
+    RightDrive.move(0);
+}
+int calculateTurn(int currentHeading, int targetHeading) {
+    int difference = targetHeading - currentHeading;
+
+    difference = ((difference + 180) % 360) - 180;
+
+    if (difference < -180) {
+        difference += 360;
+    }
+    return difference * -1;
 }
 
-void turn(int degrees, double power) {
-	imu.tare_heading();
-	degrees = degrees % 360;
-	while(true) {
-		master.print(0, 5, "Heading: %f", imu.get_heading());
-		double error = calculateOptimalTurn(degrees);
-		LeftDrive.move(std::clamp(power * error, -127.0, 127.0));
-		RightDrive.move(std::clamp(power * -error, -127.0, 127.0));
-		if(pidH.stop) {
-			pidH.stop = false;
+void turnAbsolute(int degrees, double power) {
+    degrees = degrees % 360;
+    double initialHeading = imu.get_heading();
+    double relativeHeading = 0;
+    double target = calculateTurn(initialHeading, degrees);
+    while (true) {
+        master.print(0, 5, "Heading: %f", imu.get_heading());
+        double error = pidH.calculateError(relativeHeading, target);
+        LeftDrive.move(std::clamp(power * error, -127.0, 127.0));
+        RightDrive.move(std::clamp(power * -error, -127.0, 127.0));
+        if (pidH.stop) {
+            pidH.stop = false;
             pidH.timer = 0;
-			break;
-		}
-		pros::delay(10);
-	}
-	LeftDrive.move(0);
-	RightDrive.move(0);
+            pidH.maxTimeTimer = 0;
+            break;
+        }
+        relativeHeading = (relativeHeading, initialHeading, imu.get_heading());
+        pros::delay(10);
+    }
+    LeftDrive.move(0);
+    RightDrive.move(0);
 }
 
-void turnAbsolute(int degrees, double power) { //Use either relative or absolute, don't use both in the same routine
-	degrees = degrees % 360;
-	while(true) {
-		master.print(0, 5, "Heading: %f", imu.get_heading());
-		double error = calculateOptimalTurn(degrees);
-		LeftDrive.move(std::clamp(power * error, -127.0, 127.0));
-		RightDrive.move(std::clamp(power * -error, -127.0, 127.0));
-		if(pidH.stop) {
-			pidH.stop = false;
-            pidH.timer = 0;
-			break;
-		}
-		pros::delay(10);
-	}
-	LeftDrive.move(0);
-	RightDrive.move(0);
-}
 bool isClamped = false;
 bool isLifted = false;
 bool isExtended = false;
@@ -155,13 +149,7 @@ void activateIntake(int speed) {
 void toggleClamp() {
     clampPiston.set_value(!isClamped);
     isClamped = !isClamped;
-	pros::delay(400)
-;}
-
-// void extendIntake() {
-// 	intakeExtendPiston.set_value(!isExtended);
-// 	isExtended = !isExtended;
-// }
+}
 
 void toggleLift() {
     liftPiston.set_value(!isLifted);
