@@ -11,12 +11,12 @@ extern const int SWING_SPEED;
 
 extern Drive chassis;
 
-void RedLeft();
-void RedRight();
-void RedRight2();
-void BlueLeft();
-void BlueRight();
-void BlueRight2();
+void RedRings();
+void RedMOGO();
+void RedMOGO2();
+void BlueRings();
+void BlueMOGO();
+void BlueMOGO2();
 void AutonomousSkills();
 
 void drive_example();

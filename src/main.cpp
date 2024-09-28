@@ -39,12 +39,12 @@ void initialize() {
     }
     default_constants();
     ez::as::auton_selector.autons_add({
-        Auton("Red Left", RedLeft),
-        Auton("Red Right \nMOGO rush", RedRight),
-        Auton("Red Right 2 \nTwo rings two stakes", RedRight2),
-        Auton("Blue Left", BlueLeft),
-        Auton("Blue Right \nMOGO rush", BlueRight),
-        Auton("Blue Right 2 \nTwo rings two stakes", BlueRight2),
+        Auton("Red Rings", RedRings),
+        Auton("Red MOGO \nMOGO rush", RedMOGO),
+        Auton("Red MOGO 2 \nTwo rings two stakes", RedMOGO2),
+        Auton("Blue Rings", BlueRings),
+        Auton("Blue MOGO \nMOGO rush", BlueMOGO),
+        Auton("Blue MOGO 2 \nTwo rings two stakes", BlueMOGO2),
         Auton("Skills", AutonomousSkills),
         Auton("Drive Example\n\nRobot drives forward", drive_example),
         Auton("Turn Example\n\nRobot turns 90 degrees", turn_example),
@@ -78,8 +78,9 @@ double curveJoystick(bool isCurve, int input, double t) {
 }
 
 void opcontrol() {
+    double startTime = pros::millis();
+    bool isNotified = false;
     while (true) {
-        master.print(0, 0, "Heading: %f", imu.get_heading());
         if (!pros::competition::is_connected()) {
             if (master.get_digital_new_press(DIGITAL_RIGHT))
                 autonomous();
@@ -101,14 +102,14 @@ void opcontrol() {
             activateIntake(0);
         }
 
-        if (master.get_digital_new_press(DIGITAL_A)) toggleClamp();
+        if (master.get_digital_new_press(DIGITAL_A)) toggleMOGO();
         if (master.get_digital_new_press(DIGITAL_Y)) toggleLift();
         if (master.get_digital_new_press(DIGITAL_X)) toggleIntakeCount();
 
-        // if(master.get_digital(DIGITAL_B)) toggleClamp();
-        // if(master.get_digital(DIGITAL_A)) toggleLift();
-        // if(master.get_digital(DIGITAL_Y)) toggleIntakeCount();
-
+        if(!isNotified && pros::millis() - startTime >= 85000) {
+            master.rumble("--------");
+            isNotified = true;
+        }
         pros::delay(ez::util::DELAY_TIME);
     }
 }

@@ -1,9 +1,11 @@
 #include "main.h"
 #include "pid.hpp"
+#include <cmath>
 
 #ifndef FUNCTIONS_HPP
 #define FUNCTIONS_HPP
 
+extern pros::Motor m1;
 extern pros::Motor intake1;
 extern pros::Motor intake2;
 
@@ -20,16 +22,15 @@ extern pros::ADIDigitalOut intakeSpacePiston2;
 extern PIDController pidH;
 extern PIDController pidD;
 
+double updateRelativeHeading(double initialImuHeading, double currentImuHeading);
 void drive(double target, double power, bool decelerateAtEnd);
-void drive2(double target, double power, bool decelerateAtEnd);
-void turn(int degrees, double power);
+void drive(double target, double power, bool decelerateAtEnd, std::function<void()> customFunction, double positionToCall);
 void turnAbsolute(int degrees, double power);
-double inchesToDegrees(int distanceToMove);
-double degreesToInches(int distanceToMove);
+double inchesToDegrees(double distanceToMove);
+double degreesToInches(double distanceToMove);
 void activateIntake(int speed);
-void toggleClamp();
+void toggleMOGO();
 void toggleLift();
-void extendIntake();
 void toggleIntakeCount();
 
 #endif  // FUNCTIONS_HPP
