@@ -1,7 +1,14 @@
 #include "odometry.hpp"
 
-void Odometry::update(double xPosition, double yPosition, double heading) {
+Odometry::Odometry(pros::Rotation parallel, pros::Rotation perpendicular) : parallel(parallel), perpendicular(perpendicular) {};
+void Odometry::reset() {
+    parallel.reset();
+    perpendicular.reset();
+}
+void Odometry::update(double heading) {
     // yPosition is parallel to the heading of the robot
+    double xPosition = degreesToInches(parallel.get_position() / 100);
+    double yPosition = degreesToInches(perpendicular.get_position() / 100);
     double deltaX = xPosition - prevX;
     double deltaY = yPosition - prevY;
     double deltaHeading = heading - prevHeading;
@@ -10,9 +17,10 @@ void Odometry::update(double xPosition, double yPosition, double heading) {
         bool isInterfered = true;
     }
     // deltaY = hyp, currentX = sin, currentY = cos
-    currentX += deltaY * sin(heading);
+    currentX += deltaX * sin(heading);
     currentY += deltaY * cos(heading);
 
+    prevHeading = heading;
     prevX = xPosition;
     prevY = yPosition;
 }

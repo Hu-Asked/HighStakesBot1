@@ -1,14 +1,5 @@
 #include "main.h"
 
-// These are out of 127
-const int DRIVE_SPEED = 100;
-const int TURN_SPEED = 90;
-
-void default_constants() {
-    pidD.setExitCondition(inchesToDegrees(1), 200, 5000);
-    pidH.setExitCondition(2, 200, 3000);
-}
-// Names are according to the field set up on the manual, watch out for mistakes in field orientation
 void RedRings() {
     // align 6 holes with foam tile
     // Robot starts in reverse; rush mogo
@@ -149,4 +140,8 @@ void drive_example() {
 
 void turn_example() {
     turnAbsolute(90, TURN_SPEED);
+}
+
+void curve_example() {
+    curve(90, 10, DRIVE_SPEED);
 }

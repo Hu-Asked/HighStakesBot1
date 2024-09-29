@@ -1,29 +1,6 @@
 #include "functions.hpp"
 #include "pid.hpp"
 
-PIDController pidH(0.023, 0.011, 0.144);
-PIDController pidD(0.21, 0, 0.03);
-
-pros::Motor m1(1, MOTOR_GEAR_BLUE, true, pros::E_MOTOR_ENCODER_DEGREES);
-pros::Motor m2(2, MOTOR_GEAR_BLUE, true, pros::E_MOTOR_ENCODER_DEGREES);
-pros::Motor m3(3, MOTOR_GEAR_BLUE, true, pros::E_MOTOR_ENCODER_DEGREES);
-
-pros::Motor m4(4, MOTOR_GEAR_BLUE, false, pros::E_MOTOR_ENCODER_DEGREES);
-pros::Motor m5(5, MOTOR_GEAR_BLUE, false, pros::E_MOTOR_ENCODER_DEGREES);
-pros::Motor m6(6, MOTOR_GEAR_BLUE, false, pros::E_MOTOR_ENCODER_DEGREES);
-
-pros::Motor_Group LeftDrive({m1, m2, m3});
-pros::Motor_Group RightDrive({m4, m5, m6});
-
-pros::IMU imu(14);
-
-pros::ADIDigitalOut clampPiston('A');
-pros::ADIDigitalOut liftPiston('B');
-pros::ADIDigitalOut intakeSizePiston('C');
-
-const double wheelDiameter = 3.25;
-const double gearRatio = 36.0/48.0;
-
 double updateRelativeHeading(double initialImuHeading, double currentImuHeading) {
     double relativeHeading = currentImuHeading - initialImuHeading;
     if (relativeHeading > 180) {
@@ -176,6 +153,35 @@ void turnAbsolute(int degrees, double power) {
     RightDrive.move(0);
 }
 
+void curve(int heading, double radiusOfTurn, double power) {
+    pidD.stop = false;
+    pidH.stop = false;
+    pidD.timer = 0;
+    pidH.timer = 0;
+    pidD.maxTimeTimer = 0;
+    pidH.maxTimeTimer = 0;
+    double initialHeading = imu.get_heading();
+    double relativeHeading = 0;
+    double target = calculateTurn(initialHeading, heading);
+    double motorPowerRatio = radiusOfTurn / (radiusOfTurn + distanceBetweenDrivepods);
+    m1.tare_position();
+    while(true) {
+        relativeHeading = updateRelativeHeading(initialHeading, imu.get_heading());
+        double turnError = pidH.calculateError(relativeHeading, target);
+        if (pidD.stop || pidH.stop) {
+            break;
+        }
+        double LPower = power + std::clamp(LPower * turnError, -27.0, 27.0);
+        double RPower = power + std::clamp(RPower * turnError, -27.0, 27.0);
+        if(target < 0) LPower *= motorPowerRatio;
+        else RPower *= motorPowerRatio;
+        LeftDrive.move(LPower);
+        RightDrive.move(RPower);
+        pros::delay(10);
+    }
+    LeftDrive.move(0);
+    RightDrive.move(0);
+}
 bool isClamped = false;
 bool isLifted = false;
 bool isExtended = false;

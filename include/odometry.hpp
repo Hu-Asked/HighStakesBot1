@@ -5,14 +5,16 @@
 
 class Odometry {
    public:
-    void update(double xPosition, double yPosition, double heading);
+    Odometry(pros::Rotation parallel, pros::Rotation perpendicular);
+    void reset();
+    void update(double heading);
     void setInitialPosition(double x, double y, double heading);
+    pros::Rotation parallel;
+    pros::Rotation perpendicular;
     double getHeadingToTarget(double targetX, double targetY, double curHeading);
     double getDistanceToTarget(double targetX, double targetY);
     double getX();
     double getY();
-
-   private:
     double currentX = 0;
     double currentY = 0;
     double prevX = 0;

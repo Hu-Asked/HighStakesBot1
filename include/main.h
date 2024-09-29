@@ -48,6 +48,7 @@
 #include "functions.hpp"
 #include "odometry.hpp"
 #include "pid.hpp"
+#include "declare.hpp"
 
 /**
  * If you find doing pros::Motor() to be tedious and you'd prefer just to do

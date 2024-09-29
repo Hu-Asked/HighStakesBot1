@@ -1,4 +1,3 @@
-#include "api.h"
 #include "main.h"
 
 #ifndef PID_H
@@ -20,7 +19,7 @@ class PIDController {
     double prevError;
     double exitError = 0;
     int maxTime = 5000;  // time in ms; when robot has been in this action for long enough, break;
-    int exitTime = 200;
+    int exitTime = 2;
     int maxTimeTimer = 0;
     int timer = 0;
 };

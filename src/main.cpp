@@ -1,34 +1,5 @@
 #include "main.h"
 
-// ez::Drive chassis (
-//   // Left Chassis Ports (negative port will reverse it!)
-//   //   the first port is used as the sensor
-//   {-1,-2,-3}
-
-//   // Right Chassis Ports (negative port will reverse it!)
-//   //   the first port is used as the sensor
-//   ,{4,5,6}
-
-//   // IMU Port
-//   ,14
-
-//   ,3.25
-
-//   // Cartridge RPM
-//   ,600
-
-//   ,0.75
-// );
-
-// Odometry odometry;
-pros::Motor intake1(9, pros::E_MOTOR_GEAR_BLUE, true, pros::E_MOTOR_ENCODER_DEGREES);
-pros::Motor intake2(10, pros::E_MOTOR_GEAR_BLUE, false, pros::E_MOTOR_ENCODER_DEGREES);
-
-// pros::ADIDigitalOut piston1('A');
-// pros::ADIDigitalOut piston2('B');
-// pros::ADIDigitalOut piston3('C');
-// pros::ADIDigitalOut piston4('D');
-
 void initialize() {
     pros::delay(500);
     LeftDrive.set_brake_modes(MOTOR_BRAKE_HOLD);
@@ -48,6 +19,7 @@ void initialize() {
         Auton("Skills", AutonomousSkills),
         Auton("Drive Example\n\nRobot drives forward", drive_example),
         Auton("Turn Example\n\nRobot turns 90 degrees", turn_example),
+        Auton("Curve Example\n\nRobot curves", curve_example)
     });
     ez::as::initialize();
     master.rumble(".");
